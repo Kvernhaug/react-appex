@@ -24,6 +24,7 @@ export interface Company {
 }
 
 export interface Customer {
+    id?: string;
     note?: string;
     company: Company;
 }

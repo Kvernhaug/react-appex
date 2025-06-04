@@ -37,3 +37,16 @@ export async function createCustomer(customer: Customer): Promise<Customer> {
     throw error;
   }
 }
+
+export async function updateCustomer(customer: Customer): Promise<Customer> {
+  try {
+    console.log('Updating Customer: ', JSON.stringify(customer, null, 2));
+    const response = await customerApi.put(`customer/update`, customer);
+    const updatedCustomer: Customer = response.data;
+    //console.log('Updated Customer: ', JSON.stringify(updatedCustomer, null, 2));
+    return updatedCustomer;
+  } catch (error) {
+    console.error('Error updating customer: ', error);
+    throw error;
+  }
+}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Customer } from '../api/Model';
+import { updateCustomer } from '../api/CustomerApi';
 
 interface CustomerDetailsProps {
   customer: Customer;
@@ -7,23 +8,63 @@ interface CustomerDetailsProps {
 
 const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer }) => {
   const [showEditModal, setShowEditModal] = useState(false);
-  const [note, setNote] = useState(customer.note || '');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const handleUpdateCustomer = async () => {
-    try {
-      // Here you could send an API call to update the customer
-      // await updateCustomer({ ...customer, note });
+  const [editableCustomer, setEditableCustomer] = useState<Customer>({ ...customer });
 
-      console.log('Updated customer note:', note);
-      setShowEditModal(false);
-      setShowSuccessModal(true);
-    } catch (error) {
-      console.error('Failed to update customer', error);
-    }
+  const handleInputChange = (field: string, value: any) => {
+    setEditableCustomer((prev) => ({
+      ...prev,
+      company: {
+        ...prev.company,
+        [field]: value
+      }
+    }));
   };
 
-  const { company } = customer;
+  const handleAddressChange = (field: string, value: any) => {
+    setEditableCustomer((prev) => ({
+      ...prev,
+      company: {
+        ...prev.company,
+        address: {
+          ...prev.company.address,
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  const handleOrgTypeChange = (field: string, value: any) => {
+    setEditableCustomer((prev) => ({
+      ...prev,
+      company: {
+        ...prev.company,
+        organizationType: {
+          ...prev.company.organizationType,
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  const handleNoteChange = (value: string) => {
+    setEditableCustomer((prev) => ({ ...prev, note: value }));
+  };
+
+  const handleUpdateCustomer = async () => {
+  try {
+    const updated = await updateCustomer(editableCustomer);
+    console.log('Updated customer:', updated);
+    setShowEditModal(false);
+    setShowSuccessModal(true);
+  } catch (error) {
+    console.error('Failed to update customer', error);
+    alert('Oppdatering feilet. Vennligst prøv igjen.');
+  }
+};
+
+  const { company, note } = customer;
 
   return (
     <>
@@ -65,54 +106,94 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer }) => {
       </div>
 
       {showEditModal && (
-        <div className="fixed inset-0 bg-palette-dark flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-palette-dark flex items-center justify-center z-50 overflow-auto">
           <div className="bg-palette-light p-6 rounded-2xl w-3/5">
-            <div className="flex flex-row">
-              <div className="flex-1">
-                <h3 className="text-2xl font-semibold">{company.name}</h3>
-                <p className="text-lg"><strong>Organisasjonsnummer:</strong> {company.orgNumber}</p>
-                {company.homepage && <p><strong>Hjemmeside:</strong> {company.homepage}</p>}
-                {company.email && <p><strong>Epost:</strong> {company.email}</p>}
-                {company.organizationType && <p><strong>Organisasjonsform:</strong> {company.organizationType.description}</p>}
-                {company.address && (
-                  <>
-                    <h4 className="font-semibold mt-2">Forretningsadresse</h4>
-                    <p>{company.address.postalCode} {company.address.region}</p>
-                    {company.address.street && (
-                      <ul>
-                        {company.address.street.map((address, index) => (
-                          <li key={index}>{address}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </>
-                )}
+            <h3 className="text-2xl font-semibold mb-4">Rediger kunde</h3>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label>Navn</label>
+                <input
+                  className="w-full border rounded p-2 bg-gray-100 mb-2"
+                  value={editableCustomer.company.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                />
+
+                <label>Organisasjonsnummer</label>
+                <input
+                  className="w-full border rounded p-2 bg-gray-100 mb-2"
+                  value={editableCustomer.company.orgNumber}
+                  onChange={(e) => handleInputChange('orgNumber', e.target.value)}
+                />
+
+                <label>Hjemmeside</label>
+                <input
+                  className="w-full border rounded p-2 bg-gray-100 mb-2"
+                  value={editableCustomer.company.homepage || ''}
+                  onChange={(e) => handleInputChange('homepage', e.target.value)}
+                />
+
+                <label>E-post</label>
+                <input
+                  className="w-full border rounded p-2 bg-gray-100 mb-2"
+                  value={editableCustomer.company.email || ''}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                />
               </div>
 
-              <div className="flex-1">
-                <p className="mb-2">Rediger notat</p>
-                <textarea
-                  className="w-full border rounded p-2 mb-4 bg-gray-100 focus:outline-none"
-                  rows={4}
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="Legg til eller endre notat..."
-                ></textarea>
-                <div className="flex justify-end gap-2">
-                  <button
-                    onClick={() => setShowEditModal(false)}
-                    className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 transition cursor-pointer"
-                  >
-                    Avbryt
-                  </button>
-                  <button
-                    onClick={handleUpdateCustomer}
-                    className="px-4 py-2 rounded bg-palette-dark text-white hover:bg-palette-green transition cursor-pointer"
-                  >
-                    Lagre endringer
-                  </button>
-                </div>
+              <div>
+                <label>Organisasjonsform</label>
+                <input
+                  className="w-full border rounded p-2 bg-gray-100 mb-2"
+                  value={editableCustomer.company.organizationType?.description || ''}
+                  onChange={(e) => handleOrgTypeChange('description', e.target.value)}
+                />
+
+                <label>Postnummer</label>
+                <input
+                  className="w-full border rounded p-2 bg-gray-100 mb-2"
+                  value={editableCustomer.company.address?.postalCode || ''}
+                  onChange={(e) => handleAddressChange('postalCode', e.target.value)}
+                />
+
+                <label>Poststed</label>
+                <input
+                  className="w-full border rounded p-2 bg-gray-100 mb-2"
+                  value={editableCustomer.company.address?.region || ''}
+                  onChange={(e) => handleAddressChange('region', e.target.value)}
+                />
+
+                <label>Gateadresse</label>
+                <input
+                  className="w-full border rounded p-2 bg-gray-100 mb-2"
+                  value={editableCustomer.company.address?.street?.[0] || ''}
+                  onChange={(e) => handleAddressChange('street', [e.target.value])}
+                />
               </div>
+            </div>
+
+            <label className="block mt-4">Notat</label>
+            <textarea
+              className="w-full border rounded p-2 bg-gray-100"
+              rows={3}
+              value={editableCustomer.note || ''}
+              onChange={(e) => handleNoteChange(e.target.value)}
+              placeholder="Legg til eller endre notat..."
+            />
+
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 transition cursor-pointer"
+              >
+                Avbryt
+              </button>
+              <button
+                onClick={handleUpdateCustomer}
+                className="px-4 py-2 rounded bg-palette-dark text-white hover:bg-palette-green transition cursor-pointer"
+              >
+                Lagre endringer
+              </button>
             </div>
           </div>
         </div>
