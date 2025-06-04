@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import type { BrregData } from '../api/BrregApi';
+import type { Customer } from '../api/Model';
+import { createCustomer } from '../api/CustomerApi';
 
 
 interface CompanyDetailsProps {
@@ -9,10 +11,42 @@ interface CompanyDetailsProps {
 const CompanyDetails: React.FC<CompanyDetailsProps> = ({ company }) => {
     const [showModal, setShowModal] = useState(false);
     const [note, setNote] = useState("");
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-    const handleSaveCustomer = () => {
-        setShowModal(false);
-    };
+    const handleSaveCustomer = async () => {
+  const customer: Customer = {
+    note: note,
+    company: {
+      name: company.navn,
+      orgNumber: company.organisasjonsnummer,
+      homepage: company.hjemmeside,
+      email: company.epostadresse,
+      address: {
+        country: company.postadresse?.land,
+        countryCode: company.postadresse?.landkode,
+        postalCode: company.postadresse?.postnummer,
+        region: company.postadresse?.poststed,
+        street: company.postadresse?.adresse,
+        municipality: company.postadresse?.kommune,
+        municipalityNumber: company.postadresse?.kommunenummer,
+      },
+      organizationType: {
+        code: company.organisasjonsform?.kode,
+        description: company.organisasjonsform?.beskrivelse,
+      },
+    },
+  };
+
+  try {
+    const created = await createCustomer(customer);
+    console.log("Successfully created customer:", created);
+    setShowModal(false);
+    setNote('');
+    setShowSuccessModal(true);
+  } catch (error) {
+    console.error("Failed to save customer", error);
+  }
+};
 
   return (
     <>
@@ -52,7 +86,7 @@ const CompanyDetails: React.FC<CompanyDetailsProps> = ({ company }) => {
       </div>
     </div>
 
-    {/* Modal */}
+
       {showModal && (
         <div className="fixed inset-0 bg-palette-dark flex items-center justify-center z-50">
           <div className="bg-palette-light p-6 rounded-2xl w-3/5">
@@ -109,6 +143,21 @@ const CompanyDetails: React.FC<CompanyDetailsProps> = ({ company }) => {
           </div>
         </div>
       )}
+
+      {showSuccessModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-palette-dark z-50">
+            <div className="bg-palette-light p-6 rounded-2xl w-96 text-center">
+            <h2 className="text-2xl font-bold mb-4 text-palette-green">Kunde lagret!</h2>
+            <button
+                onClick={() => setShowSuccessModal(false)}
+                className="bg-palette-dark text-white px-4 py-2 rounded-full hover:bg-palette-green transition"
+            >
+                OK
+            </button>
+            </div>
+        </div>
+        )}
+
     </>
   );
 };

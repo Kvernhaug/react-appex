@@ -13,3 +13,27 @@ export async function getCustomers(): Promise<Customer[]> {
     throw error;
   }
 }
+
+export async function getCustomerById(id: string): Promise<Customer> {
+  try {
+    const response = await customerApi.get(`customer/${id}`);
+    const customer: Customer = response.data;
+    //console.log('Customer: ', JSON.stringify(customer, null, 2));
+    return customer;
+  } catch (error) {
+    console.error('Error fetching customer by ID: ', error);
+    throw error;
+  }
+}
+
+export async function createCustomer(customer: Customer): Promise<Customer> {
+  try {
+    const response = await customerApi.post('customer/add', customer);
+    const newCustomer: Customer = response.data;
+    //console.log('Created Customer: ', JSON.stringify(newCustomer, null, 2));
+    return newCustomer;
+  } catch (error) {
+    console.error('Error creating customer: ', error);
+    throw error;
+  }
+}
