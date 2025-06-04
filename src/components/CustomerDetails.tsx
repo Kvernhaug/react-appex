@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import type { Customer } from '../api/Model';
-import { updateCustomer } from '../api/CustomerApi';
+import React, { useState } from "react";
+import type { Customer } from "../api/Model";
+import { deleteCustomer, updateCustomer } from "../api/CustomerApi";
 
 interface CustomerDetailsProps {
   customer: Customer;
@@ -10,15 +10,17 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const [editableCustomer, setEditableCustomer] = useState<Customer>({ ...customer });
+  const [editableCustomer, setEditableCustomer] = useState<Customer>({
+    ...customer,
+  });
 
   const handleInputChange = (field: string, value: any) => {
     setEditableCustomer((prev) => ({
       ...prev,
       company: {
         ...prev.company,
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
@@ -29,9 +31,9 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer }) => {
         ...prev.company,
         address: {
           ...prev.company.address,
-          [field]: value
-        }
-      }
+          [field]: value,
+        },
+      },
     }));
   };
 
@@ -42,9 +44,9 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer }) => {
         ...prev.company,
         organizationType: {
           ...prev.company.organizationType,
-          [field]: value
-        }
-      }
+          [field]: value,
+        },
+      },
     }));
   };
 
@@ -53,16 +55,33 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer }) => {
   };
 
   const handleUpdateCustomer = async () => {
-  try {
-    const updated = await updateCustomer(editableCustomer);
-    console.log('Updated customer:', updated);
-    setShowEditModal(false);
-    setShowSuccessModal(true);
-  } catch (error) {
-    console.error('Failed to update customer', error);
-    alert('Oppdatering feilet. Vennligst prøv igjen.');
-  }
-};
+    try {
+      const updated = await updateCustomer(editableCustomer);
+      console.log("Updated customer:", updated);
+      setShowEditModal(false);
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error("Failed to update customer", error);
+      alert("Oppdatering feilet. Vennligst prøv igjen.");
+    }
+  };
+
+  const handleDeleteCustomer = async () => {
+    if (confirm("Er du sikker på at du vil slette denne kunden?")) {
+      try {
+        if (editableCustomer.id) {
+          await deleteCustomer(editableCustomer.id);
+          setShowEditModal(false);
+          alert("Kunde slettet.");
+        } else {
+          alert("Kunde-ID mangler. Kan ikke slette kunde.");
+        }
+      } catch (error) {
+        console.error("Failed to delete customer", error);
+        alert("Sletting feilet. Vennligst prøv igjen.");
+      }
+    }
+  };
 
   const { company, note } = customer;
 
@@ -70,8 +89,12 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer }) => {
     <>
       <div className="flex flex-col bg-gray-100 w-full mt-8 p-4 border border-gray-300 rounded-xl shadow">
         <h3 className="text-2xl font-semibold">{company.name}</h3>
-        <p className="text-lg"><strong>Organisasjonsnummer:</strong> {company.orgNumber}</p>
-        <p className="mt-2"><strong>Notat:</strong> {note}</p>
+        <p className="text-lg">
+          <strong>Organisasjonsnummer:</strong> {company.orgNumber}
+        </p>
+        <p className="mt-2">
+          <strong>Notat:</strong> {note}
+        </p>
         <hr className="my-2 border-t border-gray-300" />
         <div className="flex flex-row">
           {company.organizationType && (
@@ -83,7 +106,9 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer }) => {
           {company.address && (
             <div className="flex-1">
               <h4 className="font-semibold">Forretningsadresse</h4>
-              <p>{company.address.postalCode} {company.address.region}</p>
+              <p>
+                {company.address.postalCode} {company.address.region}
+              </p>
               {company.address.street && (
                 <ul>
                   {company.address.street.map((address, index) => (
@@ -116,28 +141,32 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer }) => {
                 <input
                   className="w-full border rounded p-2 bg-gray-100 mb-2"
                   value={editableCustomer.company.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
                 />
 
                 <label>Organisasjonsnummer</label>
                 <input
                   className="w-full border rounded p-2 bg-gray-100 mb-2"
                   value={editableCustomer.company.orgNumber}
-                  onChange={(e) => handleInputChange('orgNumber', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("orgNumber", e.target.value)
+                  }
                 />
 
                 <label>Hjemmeside</label>
                 <input
                   className="w-full border rounded p-2 bg-gray-100 mb-2"
-                  value={editableCustomer.company.homepage || ''}
-                  onChange={(e) => handleInputChange('homepage', e.target.value)}
+                  value={editableCustomer.company.homepage || ""}
+                  onChange={(e) =>
+                    handleInputChange("homepage", e.target.value)
+                  }
                 />
 
                 <label>E-post</label>
                 <input
                   className="w-full border rounded p-2 bg-gray-100 mb-2"
-                  value={editableCustomer.company.email || ''}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  value={editableCustomer.company.email || ""}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
                 />
               </div>
 
@@ -145,29 +174,39 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer }) => {
                 <label>Organisasjonsform</label>
                 <input
                   className="w-full border rounded p-2 bg-gray-100 mb-2"
-                  value={editableCustomer.company.organizationType?.description || ''}
-                  onChange={(e) => handleOrgTypeChange('description', e.target.value)}
+                  value={
+                    editableCustomer.company.organizationType?.description || ""
+                  }
+                  onChange={(e) =>
+                    handleOrgTypeChange("description", e.target.value)
+                  }
                 />
 
                 <label>Postnummer</label>
                 <input
                   className="w-full border rounded p-2 bg-gray-100 mb-2"
-                  value={editableCustomer.company.address?.postalCode || ''}
-                  onChange={(e) => handleAddressChange('postalCode', e.target.value)}
+                  value={editableCustomer.company.address?.postalCode || ""}
+                  onChange={(e) =>
+                    handleAddressChange("postalCode", e.target.value)
+                  }
                 />
 
                 <label>Poststed</label>
                 <input
                   className="w-full border rounded p-2 bg-gray-100 mb-2"
-                  value={editableCustomer.company.address?.region || ''}
-                  onChange={(e) => handleAddressChange('region', e.target.value)}
+                  value={editableCustomer.company.address?.region || ""}
+                  onChange={(e) =>
+                    handleAddressChange("region", e.target.value)
+                  }
                 />
 
                 <label>Gateadresse</label>
                 <input
                   className="w-full border rounded p-2 bg-gray-100 mb-2"
-                  value={editableCustomer.company.address?.street?.[0] || ''}
-                  onChange={(e) => handleAddressChange('street', [e.target.value])}
+                  value={editableCustomer.company.address?.street?.[0] || ""}
+                  onChange={(e) =>
+                    handleAddressChange("street", [e.target.value])
+                  }
                 />
               </div>
             </div>
@@ -176,12 +215,18 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer }) => {
             <textarea
               className="w-full border rounded p-2 bg-gray-100"
               rows={3}
-              value={editableCustomer.note || ''}
+              value={editableCustomer.note || ""}
               onChange={(e) => handleNoteChange(e.target.value)}
               placeholder="Legg til eller endre notat..."
             />
 
             <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={handleDeleteCustomer}
+                className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition cursor-pointer"
+              >
+                Slett
+              </button>
               <button
                 onClick={() => setShowEditModal(false)}
                 className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 transition cursor-pointer"
@@ -202,7 +247,9 @@ const CustomerDetails: React.FC<CustomerDetailsProps> = ({ customer }) => {
       {showSuccessModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-palette-dark z-50">
           <div className="bg-palette-light p-6 rounded-2xl w-96 text-center">
-            <h2 className="text-2xl font-bold mb-4 text-palette-green">Kunde oppdatert!</h2>
+            <h2 className="text-2xl font-bold mb-4 text-palette-green">
+              Kunde oppdatert!
+            </h2>
             <button
               onClick={() => setShowSuccessModal(false)}
               className="bg-palette-dark text-white px-4 py-2 rounded-full hover:bg-palette-green transition"

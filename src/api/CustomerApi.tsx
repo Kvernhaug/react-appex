@@ -50,3 +50,13 @@ export async function updateCustomer(customer: Customer): Promise<Customer> {
     throw error;
   }
 }
+
+export async function deleteCustomer(id: string): Promise<void> {
+  try {
+    await customerApi.delete(`customer/delete/${id}`);
+    console.log(`Customer with ID ${id} deleted successfully.`);
+  } catch (error) {
+    console.error('Error deleting customer: ', error);
+    throw error;
+  }
+}
