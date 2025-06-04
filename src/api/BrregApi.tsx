@@ -1,7 +1,7 @@
 import { brregApi } from "./Axios";
 
 
-export interface Postadresse {
+export interface Forretningsadresse {
   land?: string;
   landkode?: string;
   postnummer?: string;
@@ -19,7 +19,7 @@ export interface Organisasjonsform {
 export interface BrregData {
   organisasjonsnummer: string;
   navn: string;
-  postadresse?: Postadresse;
+  forretningsadresse?: Forretningsadresse;
   organisasjonsform?: Organisasjonsform;
   hjemmeside?: string;
   epostadresse?: string;

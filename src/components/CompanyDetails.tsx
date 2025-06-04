@@ -22,13 +22,13 @@ const CompanyDetails: React.FC<CompanyDetailsProps> = ({ company }) => {
       homepage: company.hjemmeside,
       email: company.epostadresse,
       address: {
-        country: company.postadresse?.land,
-        countryCode: company.postadresse?.landkode,
-        postalCode: company.postadresse?.postnummer,
-        region: company.postadresse?.poststed,
-        street: company.postadresse?.adresse,
-        municipality: company.postadresse?.kommune,
-        municipalityNumber: company.postadresse?.kommunenummer,
+        country: company.forretningsadresse?.land,
+        countryCode: company.forretningsadresse?.landkode,
+        postalCode: company.forretningsadresse?.postnummer,
+        region: company.forretningsadresse?.poststed,
+        street: company.forretningsadresse?.adresse,
+        municipality: company.forretningsadresse?.kommune,
+        municipalityNumber: company.forretningsadresse?.kommunenummer,
       },
       organizationType: {
         code: company.organisasjonsform?.kode,
@@ -61,13 +61,13 @@ const CompanyDetails: React.FC<CompanyDetailsProps> = ({ company }) => {
                 <p>{company.organisasjonsform.beskrivelse}</p>
             </div>
         )}
-        {company.postadresse && (
+        {company.forretningsadresse && (
             <div className="flex-1">
                 <h4 className="font-semibold">Forrentingsaddresse</h4>
-                <p>{company.postadresse.postnummer} {company.postadresse.poststed}</p>
-                {company.postadresse.adresse && (
+                <p>{company.forretningsadresse.postnummer} {company.forretningsadresse.poststed}</p>
+                {company.forretningsadresse.adresse && (
                     <ul>
-                    {company.postadresse.adresse.map((address, index) => (
+                    {company.forretningsadresse.adresse.map((address, index) => (
                         <li key={index}>{address}</li>
                     ))}
                     </ul>
@@ -101,13 +101,13 @@ const CompanyDetails: React.FC<CompanyDetailsProps> = ({ company }) => {
                         <p><strong>Epost:</strong> {company.epostadresse}</p>)}
                     {company.organisasjonsform && (
                         <p><strong>Organisasjonsform:</strong> {company.organisasjonsform.beskrivelse}</p>)}
-                    {company.postadresse && (
+                    {company.forretningsadresse && (
                         <div className="flex-1">
                             <h4 className="font-semibold">Forrentingsaddresse</h4>
-                            <p>{company.postadresse.postnummer} {company.postadresse.poststed}</p>
-                            {company.postadresse.adresse && (
+                            <p>{company.forretningsadresse.postnummer} {company.forretningsadresse.poststed}</p>
+                            {company.forretningsadresse.adresse && (
                                 <ul>
-                                {company.postadresse.adresse.map((address, index) => (
+                                {company.forretningsadresse.adresse.map((address, index) => (
                                     <li key={index}>{address}</li>
                                 ))}
                                 </ul>
