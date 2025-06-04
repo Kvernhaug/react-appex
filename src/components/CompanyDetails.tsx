@@ -41,7 +41,7 @@ const CompanyDetails: React.FC<CompanyDetailsProps> = ({ company }) => {
     const created = await createCustomer(customer);
     console.log("Successfully created customer:", created);
     setShowModal(false);
-    setNote('');
+    setNote("");
     setShowSuccessModal(true);
   } catch (error) {
     console.error("Failed to save customer", error);
