@@ -60,3 +60,29 @@ export async function deleteCustomer(id: string): Promise<void> {
     throw error;
   }
 }
+
+export interface CustomerFilter {
+  note?: string;
+  companyName?: string;
+  street?: string;
+  postalCode?: string;
+  region?: string;
+}
+
+export async function filterCustomers(filter: CustomerFilter): Promise<Customer[]> {
+  try {
+    const params = new URLSearchParams();
+    if (filter.note) params.append('note', filter.note);
+    if (filter.companyName) params.append('companyName', filter.companyName);
+    if (filter.street) params.append('street', filter.street);
+    if (filter.postalCode) params.append('postalCode', filter.postalCode);
+    if (filter.region) params.append('region', filter.region);
+
+    const response = await customerApi.get(`customer/filter?${params.toString()}`);
+    const customers: Customer[] = response.data;
+    return customers;
+  } catch (error) {
+    console.error('Error filtering customers: ', error);
+    throw error;
+  }
+}
