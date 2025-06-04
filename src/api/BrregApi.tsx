@@ -1,3 +1,4 @@
+import { brregApi } from "./Axios";
 
 
 export interface Postadresse {
@@ -15,40 +16,23 @@ export interface Organisasjonsform {
   beskrivelse?: string;
 }
 
-export interface BreegData {
+export interface BrregData {
   organisasjonsnummer: string;
   navn: string;
   postadresse?: Postadresse;
   organisasjonsform?: Organisasjonsform;
   hjemmeside?: string;
   epostadresse?: string;
-  [key: string]: any;
 }
 
 
-export async function getBreegDataByOrgNumber(
+export async function getBrregDataByOrgNumber(
   orgNumber: string
-): Promise<BreegData> {
+): Promise<BrregData[]> {
   try {
-    const response = await fetch(
-      `https://data.brreg.no/enhetsregisteret/api/enheter/${orgNumber}`
-    );
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const json = await response.json();
-
-    // Normalize to BreegData format
-    const data: BreegData = {
-      organisasjonsnummer: json.organisasjonsnummer,
-      navn: json.navn,
-      postadresse: json.postadresse,
-      organisasjonsform: json.organisasjonsform,
-      hjemmeside: json.hjemmeside,
-      epostadresse: json.epostadresse,
-      ...json,
-    };
-
+    const response = await brregApi.get(orgNumber);
+    const data: BrregData[] = response.data._embedded?.enheter || [];
+    console.log('Brreg: ', JSON.stringify(data, null, 2));
     return data;
   } catch (err) {
     console.error('Failed to fetch org data:', err);
@@ -56,36 +40,14 @@ export async function getBreegDataByOrgNumber(
   }
 }
 
-export async function searchBreegDataByName(
+export async function searchBrregDataByName(
   name: string
-): Promise<BreegData[]> {
+): Promise<BrregData[]> {
   try {
-    const response = await fetch(
-      `https://data.brreg.no/enhetsregisteret/api/enheter?navn=${encodeURIComponent(
-        name
-      )}`
-    );
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const json = await response.json();
-
-    if (!json._embedded?.enheter) {
-      return [];
-    }
-
-    // Map API data to BreegData[]
-    return json._embedded.enheter.map((data: any) => ({
-      organisasjonsnummer: data.organisasjonsnummer,
-      navn: data.navn,
-      postadresse: data.postadresse,
-      organisasjonsform: data.organisasjonsform,
-      hjemmeside: data.hjemmeside,
-      epostadresse: data.epostadresse,
-      ...data,
-    }));
+    const response = await brregApi.get(`?navn=${encodeURIComponent(name)}`);
+    const data: BrregData[] = response.data._embedded?.enheter || [];
+    console.log('Brreg: ', JSON.stringify(data, null, 2));
+    return data;
   } catch (err) {
     console.error('Failed to search orgs by name:', err);
     throw err;

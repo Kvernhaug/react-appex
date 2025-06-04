@@ -3,7 +3,7 @@ import { clsx } from "clsx";
 
 export function Navigation() {
   return (
-    <nav className="flex flex-row text-2xl justify-around m-auto w-full">
+    <nav className="fixed flex flex-row bg-palette-light w-full text-2xl justify-center">
       <NavItem name="Kundesøk" path="/" />
       <NavItem name="Mine kunder" path="kunder" />
     </nav>
@@ -23,7 +23,7 @@ function NavItem({ name, path }: NavItemsProps) {
           "rounded-full p-2 m-2 cursor-pointer",
           isActive
             ? "bg-palette-dark text-palette-light"
-            : "hover:bg-palette-dark hover:text-palette-light"
+            : "hover:bg-palette-green hover:text-palette-light"
         )
       }
     >

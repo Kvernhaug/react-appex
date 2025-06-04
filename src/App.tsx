@@ -11,7 +11,6 @@ import NotFound from './pages/NotFound';
 function App() {
   
   return (
-
       <div className="flex items-center flex-col w-screen h-screen">
         <BrowserRouter>
           <Navigation />
@@ -22,7 +21,6 @@ function App() {
           </Routes>
         </BrowserRouter>
       </div>
-
   )
 }
 

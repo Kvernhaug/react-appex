@@ -1,108 +1,85 @@
 'use client';
 
 import React, { use, useEffect, useState } from 'react';
-import { getBreegDataByOrgNumber, searchBreegDataByName, type BreegData } from '../api/BrregApi';
+import { getBrregDataByOrgNumber, searchBrregDataByName, type BrregData } from '../api/BrregApi';
+import { AiOutlineSearch } from 'react-icons/ai';
+import CompanyDetails from '../components/CompanyDetails';
 
 export default function Home() {
-  const [company, setCompany] = useState<BreegData | null>(null);
-  const [results, setResults] = useState<BreegData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [results, setResults] = useState<BrregData[] | null>(null);
 
-  const isOrgNumber = (val: string) => /^\d{9}$/.test(val.trim());
-  const query = 'BSI';
-
-  const handleSearch = async () => {
-    setCompany(null);
-    setResults([]);
-    setError(null);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setLoading(true);
+    setError(null);
+    const data = new FormData(e.currentTarget);
+    const formObject = Object.fromEntries(data);
+    const searchTerm = formObject['brregSearch'] as string;
+
+    console.log("Form data: ", formObject);
+
+    // Check if the search term is a 9-digit number
+    const isOrgNumber = /^[0-9]{9}$/.test(searchTerm);
 
     try {
-      if (isOrgNumber(query)) {
-        const data = await getBreegDataByOrgNumber(query.trim());
-        setCompany(data);
+      let response;
+      if (isOrgNumber) {
+        response = await getBrregDataByOrgNumber(searchTerm);
       } else {
-        const data = await searchBreegDataByName(query.trim());
-        setResults(data);
+        response = await searchBrregDataByName(searchTerm);
       }
-    } catch (err: any) {
-      setError(err.message || 'Unknown error occurred');
+      setResults(response);
+    } catch (err) {
+      setError('Failed to fetch data.');
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {handleSearch()}, []);
-
   return (
-    <div className="p-4 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Brønnøysund Company Search</h1>
+    <div className="w-3/5 pt-16">
+      <div className="flex flex-col fixed w-3/5 bg-palette-light h-40">
+        <h1 className="text-3xl font-bold text-center mb-8">Legg til ny kunde</h1>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-row justify-center items-center"
+        >
+          <div className="w-4/5 relative">
+            <input
+                type="text"
+                name="brregSearch"
+                id="brregSearch"
+                placeholder="Søk på navn eller organisasjonsnummer"
+                className="bg-gray-100 p-4 rounded-full w-full shadow focus:outline-none"
+            >
+            </input>
+            <button
+                type="submit"
+                className="absolute right-1 top-1/2 -translate-y-1/2 bg-palette-dark text-white p-4 rounded-full shadow hover:bg-palette-green transition cursor-pointer"
+            >
+                <AiOutlineSearch color= "#DCD7C9" />
+            </button>
+          </div>
+        </form>
+      </div>
+      
+
+      
 
       {loading && <p>Loading...</p>}
-      {error && <p className="text-red-600">Error: {error}</p>}
-
-      <form
-        onSubmit={(e) =>{
-            e.preventDefault()
-            const data = new FormData(e.currentTarget)
-            const formObject = Object.fromEntries(data)
-            console.log("Form data: ", formObject);
-            
-        }}
-      >
-        <input
-            type="text"
-            name="searchInput"
-            id="searchInput"
-        >
-        </input>
-        <button
-            type="submit"
-        >
-            Submit
-        </button>
-      </form>
-
-      {company && (
-        <div className="bg-gray-100 p-4 rounded shadow">
-          <h2 className="text-xl font-semibold">{company.navn}</h2>
-          <p><strong>Org nr:</strong> {company.organisasjonsnummer}</p>
-          {company.postadresse && (
-            <>
-              <p><strong>Adresse:</strong> {company.postadresse.adresse?.join(', ')}</p>
-              <p>{company.postadresse.postnummer} {company.postadresse.poststed}</p>
-            </>
-          )}
-          {company.hjemmeside && (
-            <p>
-              <strong>Nettside:</strong>{' '}
-              <a href={company.hjemmeside} target="_blank" rel="noopener noreferrer">
-                {company.hjemmeside}
-              </a>
-            </p>
-          )}
-          {company.epostadresse && <p><strong>E-post:</strong> {company.epostadresse}</p>}
-          {company.organisasjonsform && (
-            <p><strong>Organisasjonsform:</strong> {company.organisasjonsform.beskrivelse}</p>
-          )}
-        </div>
-      )}
-
-      {results.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold mb-2">Search Results</h2>
-          {results.map((comp) => (
-            <div key={comp.organisasjonsnummer} className="border p-3 rounded shadow-sm bg-white">
-              <p className="font-medium">{comp.navn}</p>
-              <p>Org nr: {comp.organisasjonsnummer}</p>
-              {comp.postadresse && (
-                <p>
-                  {comp.postadresse.adresse?.join(', ')}, {comp.postadresse.postnummer} {comp.postadresse.poststed}
-                </p>
-              )}
-            </div>
-          ))}
+      {error && <p className="text-red-500">{error}</p>}
+      {results && (
+        <div className="mt-30 p-8 flex flex-col w-full">
+          <ul>
+            {results.map((item, index) => (
+              <li key={index}>
+                <CompanyDetails company={item} />
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
