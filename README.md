@@ -1,54 +1,51 @@
 # React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Installation Guide
+### Prerequistes
+- Have [Node.js](https://nodejs.org/en/download) intalled
+- Have [Vite](https://vite.dev/guide/) installed
 
-Currently, two official plugins are available:
+### Installation
+- Clone and navigate git project
+- Run using `npm run dev`
+- Web page can be found at http://localhost:5173/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Project Structure
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```
+└── 📁src
+    └── 📁api
+        └── Axios.tsx
+        └── BrregApi.tsx
+        └── CustomerApi.tsx
+        └── Model.tsx
+    └── 📁assets
+        └── react.svg
+    └── 📁components
+        └── CompanyDetails.tsx
+        └── CustomerDetails.tsx
+        └── CustomerList.tsx
+        └── navigation.tsx
+    └── 📁pages
+        └── Customers.tsx
+        └── Home.tsx
+        └── NotFound.tsx
+    └── App.css
+    └── App.tsx
+    └── index.css
+    └── main.tsx
+    └── vite-env.d.ts
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Dokumentasjon Tidsbruk
+2025.05.30 - Brukte ~2 timer på å sette opp React prosjekt med grunnleggende styling
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+2025.05.31 - Brukte ~2 timer på å koble frontend til Brønnøysundregistrene(BRREG) sitt api for å søke opp virksomheter
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+2025.06.01 - Brukte noen timer på å prøve å lage ASP.NET Core med integrert React
+
+2025.06.02 - Mer knoting med ASP.NET Core med React og bestemme meg for at det er teit og skrote prosjektet
+
+2025.06.03 - Brukte ~6 timer på å lage ny backend med ASP.NET Core Web Api
+
+2025.06.04 - Brukte ~8 timer på å noe småfiksing på backend og å gjøre ferdig kundebehandlingsdelen av frontend
